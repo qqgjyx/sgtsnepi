@@ -3,76 +3,105 @@ hide:
   - navigation
 ---
 
-# <img src="assets/sgtsne.png" width="40px" align="center" alt="sgtsnepi logo"> PySGtSNEpi
+# <img src="assets/sgtsne.png" width="40px" align="center" alt="SG-t-SNE-Pi logo"> PySGtSNEpi
 
-<img src="assets/logo.png" width="800px" align="center" alt="sgtsnepi demo">
+<img src="assets/logo.png" width="800px" align="center" alt="SG-t-SNE-Pi embedding demo">
 
-[![PyPI version](https://badge.fury.io/py/pysgtsnepi.svg)](https://badge.fury.io/py/pysgtsnepi)
+[![PyPI version](https://badge.fury.io/py/pysgtsnepi.svg)](https://pypi.org/project/pysgtsnepi/)
+[![Python 3.10–3.13](https://img.shields.io/pypi/pyversions/pysgtsnepi)](https://pypi.org/project/pysgtsnepi/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/qqgjyx/sgtsnepi/actions/workflows/ci.yml/badge.svg)](https://github.com/qqgjyx/sgtsnepi/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-qqgjyx.com%2Fpysgtsnepi-blue)](https://qqgjyx.com/pysgtsnepi/)
 
-PySGtSNEpi is a pure Python implementation of the Swift Neighbor Embedding
-of Sparse Stochastic Graphs ([SG-t-SNE-Π](https://t-sne-pi.cs.duke.edu)) algorithm.
+> Embed sparse graphs into 2D/3D — pure Python, pip-installable, sklearn-compatible.
 
----
+PySGtSNEpi is a pure Python port of the
+[SG-t-SNE-Pi](https://t-sne-pi.cs.duke.edu) algorithm, translated from the
+original [C++](https://github.com/fcdimitr/sgtsnepi) and
+[Julia](https://github.com/fcdimitr/SGtSNEpi.jl) implementations.
+Unlike standard t-SNE, SG-t-SNE-Pi works on **any sparse stochastic graph**,
+not just kNN graphs derived from point clouds.
+No C/C++ compiler needed — `pip install` and go.
 
-## 🚀 Features
+## Features
 
-- **SGtSNEpi**  
-  Embed sparse stochastic graphs. [TBD]
+- **1D / 2D / 3D embedding** of sparse stochastic graphs
+- **Arbitrary sparse graph input** — not limited to kNN graphs
+- **Point cloud input** with automatic kNN graph construction via [PyNNDescent](https://github.com/lmcinnes/pynndescent)
+- **Lambda rescaling** to equalize effective node degrees
+- **Scikit-learn compatible** API (`fit` / `transform` / `fit_transform`)
+- **Pure Python** — runs on Windows, macOS (including Apple Silicon), and Linux
+- **Numba JIT** compiled hot loops for near-native speed
+- **FFT-accelerated** repulsive force computation
 
-- **Lambda Equalization**  
-  Equalize the local entropy of columns in a matrix.
+## Quick Start
 
----
+```bash
+pip install pysgtsnepi
+```
 
-## 🛠 Contributing
+### Scikit-learn API (point cloud)
 
-We welcome contributions to improve PySGtSNEpi! Please follow these steps:
+```python
+from pysgtsnepi import SGtSNEpi
 
-1. Fork the repository
-2. Create a new branch (`feature-branch`)
-3. Commit your changes
-4. Open a pull request
+model = SGtSNEpi(d=2, lambda_=10)
+Y = model.fit_transform(X)   # X is (n_samples, n_features)
+```
 
----
+### Functional API (sparse graph)
 
-## 🔗 Links
+```python
+from scipy.io import mmread
+from pysgtsnepi import sgtsnepi
 
-- [SGtSNEpi.jl](https://github.com/fcdimitr/SGtSNEpi.jl?tab=readme-ov-file)
-- [sgtsnepi](https://github.com/fcdimitr/sgtsnepi)
+P = mmread("graph.mtx")       # sparse stochastic graph
+Y = sgtsnepi(P, d=3, lambda_=10)
+```
 
-## 📝 Citation
+## Roadmap
 
-If you use our package, please cite:
+- [x] Lambda equalization
+- [ ] kNN graph construction (via PyNNDescent)
+- [ ] Core SG-t-SNE-Pi embedding (attractive + repulsive forces)
+- [ ] FFT-accelerated repulsive forces
+- [ ] Numba JIT for interpolation and gradient kernels
+- [ ] 1D / 3D embedding support
+- [ ] `SGtSNEpi` sklearn estimator class
+- [ ] `sgtsnepi()` functional API
+
+## Citation
+
+If you use this package in your research, please cite:
 
 ```bibtex
-@inproceedings{pitsianis2019hpec,
-  title = {Spaceland Embedding of Sparse Stochastic Graphs},
-  booktitle = {{{IEEE High Performance Extreme Computing Conference}}},
-  author = {Pitsianis, Nikos and Iliopoulos, Alexandros-Stavros and Floros, Dimitris and Sun, Xiaobai},
-  date = {2019},
-  doi = {10.1109/HPEC.2019.8916505}
+@article{pitsianis2019joss,
+  title     = {{SG-t-SNE-$\Pi$}: Swift Neighbor Embedding of Sparse Stochastic Graphs},
+  author    = {Pitsianis, Nikos and Floros, Dimitris and Iliopoulos, Alexandros-Stavros and Sun, Xiaobai},
+  journal   = {Journal of Open Source Software},
+  volume    = {4},
+  number    = {39},
+  pages     = {1577},
+  year      = {2019},
+  doi       = {10.21105/joss.01577}
 }
 
-@article{pitsianis2019joss,
-  title = {{{SG-t-SNE-Π}}: Swift Neighbor Embedding of Sparse Stochastic Graphs},
-  author = {Pitsianis, Nikos and Floros, Dimitris and Iliopoulos, Alexandros-Stavros and Sun, Xiaobai},
-  date = {2019},
-  journaltitle = {Journal of Open Source Software},
-  volume = {4},
-  number = {39},
-  pages = {1577},
-  issn = {2475-9066},
-  doi = {10.21105/joss.01577},
-  url = {http://dx.doi.org/10.21105/joss.01577}
+@inproceedings{pitsianis2019hpec,
+  title     = {Spaceland Embedding of Sparse Stochastic Graphs},
+  author    = {Pitsianis, Nikos and Iliopoulos, Alexandros-Stavros and Floros, Dimitris and Sun, Xiaobai},
+  booktitle = {IEEE High Performance Extreme Computing Conference},
+  year      = {2019},
+  doi       = {10.1109/HPEC.2019.8916505}
 }
 ```
 
----
+## Links
 
-## 📝 License
+- [Algorithm website](https://t-sne-pi.cs.duke.edu)
+- [C++ implementation](https://github.com/fcdimitr/sgtsnepi)
+- [Julia implementation](https://github.com/fcdimitr/SGtSNEpi.jl)
+- [Documentation](https://qqgjyx.com/pysgtsnepi/)
 
-This project is licensed under the MIT License.
-See the [LICENSE](https://github.com/qqgjyx/sgtsnepi/blob/main/LICENSE) file for details.
+## License
 
----
+MIT — see [LICENSE](https://github.com/qqgjyx/sgtsnepi/blob/main/LICENSE).
