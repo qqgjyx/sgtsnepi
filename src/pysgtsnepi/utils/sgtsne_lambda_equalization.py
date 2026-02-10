@@ -1,10 +1,32 @@
-import numpy as np
-from scipy.sparse import csc_matrix
 import warnings
-
 from typing import Literal
 
+import numpy as np
 from scipy.optimize import root_scalar
+from scipy.sparse import csc_matrix
+
+
+def _colsum(D, j, sigma=1.0):
+    """Compute column sum of exp(-vals * sigma)."""
+    D_min = np.finfo(float).tiny
+    vals = D.data[D.indptr[j] : D.indptr[j + 1]]
+    sum_j = np.sum(np.exp(-vals * sigma))
+    return max(sum_j, D_min)
+
+
+def _colupdate(D, j, sigma):
+    """Update column values in-place with exp(-vals * sigma)."""
+    start, end = D.indptr[j], D.indptr[j + 1]
+    D.data[start:end] = np.exp(-D.data[start:end] * sigma)
+
+
+def _make_objective(D, j, lambda_):
+    """Create objective function for column j."""
+
+    def objective(x):
+        return _colsum(D, j, x) - lambda_
+
+    return objective
 
 
 def sgtsne_lambda_equalization(
@@ -59,29 +81,6 @@ def sgtsne_lambda_equalization(
     Juntang Wang (translation to Python on Nov 16, 2024)
     """
 
-    #############################################################################
-    #                          private helper functions                         #
-    #############################################################################
-
-    def colsum(D, j, sigma=1.0):
-        """Helper function to compute column sum"""
-
-        # minimum possible value (python float precision)
-        D_min = np.finfo(float).tiny
-
-        vals = D.data[D.indptr[j] : D.indptr[j + 1]]
-        sum_j = np.sum(np.exp(-vals * sigma))
-        return max(sum_j, D_min)
-
-    def colupdate(D, j, sigma):
-        """Helper function to update column values"""
-        start, end = D.indptr[j], D.indptr[j + 1]
-        D.data[start:end] = np.exp(-D.data[start:end] * sigma)
-
-    #############################################################################
-    #                 parameter setting & memory pre-allocations                #
-    #############################################################################
-
     n = D.shape[0]
     cond_P = D.copy()
 
@@ -90,62 +89,55 @@ def sgtsne_lambda_equalization(
     i_tval = np.zeros(n)
     sigma_sq = np.ones(n)
 
-    #############################################################################
-    #                       pre-calculate average entropy                       #
-    #############################################################################
-
-    for j in range(n):  # loop over all columns of D
-        sum_j = colsum(D, j)
-        i_tval[j] = sum_j - lambda_  # difference from λ
-
-    #############################################################################
-    #                        search for σ²                                      #
-    #############################################################################
+    # Pre-calculate initial column sums
+    for j in range(n):
+        sum_j = _colsum(D, j)
+        i_tval[j] = sum_j - lambda_
 
     if algorithm == "custom_bisection":
-        for j in range(n):  # loop over all columns of D
+        for j in range(n):
             fval = i_tval[j]
-            lb, ub = -1000.0, np.inf  # lower and upper bounds
+            lb, ub = -1000.0, 1000.0
 
             iter_count = 0
 
             while abs(fval) > tol_binary and iter_count < max_iter:
                 iter_count += 1
 
-                if fval > 0:  # update lower bound
+                if fval > 0:
                     lb = sigma_sq[j]
-                    sigma_sq[j] = 2 * lb if np.isinf(ub) else 0.5 * (lb + ub)
-                else:  # update upper bound
+                    if ub >= 1000.0:
+                        sigma_sq[j] = 2 * lb
+                    else:
+                        sigma_sq[j] = 0.5 * (lb + ub)
+                else:
                     ub = sigma_sq[j]
-                    sigma_sq[j] = 0.5 * ub if np.isinf(lb) else 0.5 * (lb + ub)
+                    if lb <= -1000.0:
+                        sigma_sq[j] = 0.5 * ub
+                    else:
+                        sigma_sq[j] = 0.5 * (lb + ub)
 
-                # Re-calculate local entropy
-                sum_j = colsum(D, j, sigma_sq[j])
+                sum_j = _colsum(D, j, sigma_sq[j])
                 fval = sum_j - lambda_
 
-            # Post-recording
             i_diff[j] = fval
             i_count[j] = iter_count
-            colupdate(cond_P, j, sigma_sq[j])
+            _colupdate(cond_P, j, sigma_sq[j])
 
-    else:  # Use any scipy.optimize root finding method
+    else:
         for j in range(n):
-            # Define the objective function
-            def objective(x):
-                return colsum(D, j, x) - lambda_
+            objective = _make_objective(D, j, lambda_)
 
             try:
-                # For methods that require brackets
                 if algorithm in ["brentq", "brenth", "bisect", "ridder"]:
                     result = root_scalar(
                         objective,
                         method=algorithm,
-                        bracket=[-1000.0, np.inf],
+                        bracket=[-1000.0, 1000.0],
                         xtol=tol_binary,
                         maxiter=max_iter,
                         full_output=True,
                     )
-                # For methods that require initial guess
                 elif algorithm in ["newton", "secant", "halley"]:
                     result = root_scalar(
                         objective,
@@ -161,35 +153,32 @@ def sgtsne_lambda_equalization(
                 sigma_sq[j] = result.root
                 i_diff[j] = objective(sigma_sq[j])
                 i_count[j] = result.iterations
-                colupdate(cond_P, j, sigma_sq[j])
+                _colupdate(cond_P, j, sigma_sq[j])
 
             except (ValueError, RuntimeError) as e:
-                # If root finding fails, use the initial value
-                msg = (
-                    f"Failed for column {j} with {algorithm} method: {str(e)}"
-                )
-                warnings.warn(msg)
+                msg = f"Failed for column {j} with {algorithm} method: {e!s}"
+                warnings.warn(msg, stacklevel=2)
                 sigma_sq[j] = 1.0
                 i_diff[j] = objective(sigma_sq[j])
                 i_count[j] = 0
-                colupdate(cond_P, j, sigma_sq[j])
-
-    #############################################################################
-    #                      display post-information to user                     #
-    #############################################################################
+                _colupdate(cond_P, j, sigma_sq[j])
 
     avg_iter = np.ceil(np.sum(i_count) / n)
     nc_idx = np.sum(np.abs(i_diff) > tol_binary)
 
     if nc_idx == 0:
-        print(f"✅ All {n} elements converged numerically, avg(#iter) = {avg_iter}")
+        print(f"All {n} elements converged numerically, avg(#iter) = {avg_iter}")
     else:
-        warnings.warn(f"There are {nc_idx} non-convergent elements out of {n}")
+        warnings.warn(
+            f"There are {nc_idx} non-convergent elements out of {n}", stacklevel=2
+        )
 
     n_neg = np.sum(sigma_sq < 0)
     if n_neg > 0:
         warnings.warn(
-            f"There are {n_neg} nodes with negative γᵢ; consider decreasing λ"
+            f"There are {n_neg} nodes with negative gamma_i;"
+            " consider decreasing lambda",
+            stacklevel=2,
         )
 
     return cond_P

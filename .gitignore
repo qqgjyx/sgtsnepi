@@ -29,3 +29,16 @@ site/
 
 .DS_Store
 
+# Numba caches
+.numba_cache/
+*.nbi
+*.nbc
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+coverage.xml
+
+ref/
+

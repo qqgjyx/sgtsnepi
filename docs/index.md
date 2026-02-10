@@ -7,10 +7,10 @@ hide:
 
 <img src="assets/logo.png" width="800px" align="center" alt="sgtsnepi demo">
 
-[![PyPI version](https://badge.fury.io/py/sgtsnepi.svg)](https://badge.fury.io/py/sgtsnepi)
+[![PyPI version](https://badge.fury.io/py/pysgtsnepi.svg)](https://badge.fury.io/py/pysgtsnepi)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-PySGtSNEpi is a Python module (wrapper) implementing the Swift Neighbor Embedding
+PySGtSNEpi is a pure Python implementation of the Swift Neighbor Embedding
 of Sparse Stochastic Graphs ([SG-t-SNE-Π](https://t-sne-pi.cs.duke.edu)) algorithm.
 
 ---
@@ -27,7 +27,7 @@ of Sparse Stochastic Graphs ([SG-t-SNE-Π](https://t-sne-pi.cs.duke.edu)) algori
 
 ## 🛠 Contributing
 
-We welcome contributions to improve mheatmap! Please follow these steps:
+We welcome contributions to improve PySGtSNEpi! Please follow these steps:
 
 1. Fork the repository
 2. Create a new branch (`feature-branch`)
@@ -73,6 +73,6 @@ If you use our package, please cite:
 ## 📝 License
 
 This project is licensed under the MIT License.
-See the [LICENSE](https://github.com/qqgjyx/mheatmap/blob/main/LICENSE) file for details.
+See the [LICENSE](https://github.com/qqgjyx/sgtsnepi/blob/main/LICENSE) file for details.
 
 ---

@@ -9,7 +9,7 @@ from typing import Literal
 
 from scipy.optimize import root_scalar
 
-from sgtsnepi import sgtsne_lambda_equalization
+from pysgtsnepi.utils import sgtsne_lambda_equalization
 ```
 
 

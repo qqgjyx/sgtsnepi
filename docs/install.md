@@ -14,7 +14,7 @@ pip install pysgtsnepi
 ## Install from source
 
 ```bash
-git clone https://github.com/qqgjyx/pysgtsnepi.git
-cd pysgtsnepi
+git clone https://github.com/qqgjyx/sgtsnepi.git
+cd sgtsnepi
 pip install .
 ```

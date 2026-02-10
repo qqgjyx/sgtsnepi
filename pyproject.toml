@@ -1,3 +1,91 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta" 
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pysgtsnepi"
+version = "0.2.0"
+description = "Pure Python implementation of SG-t-SNE-Π: Swift Neighbor Embedding of Sparse Stochastic Graphs"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Juntang Wang", email = "jw853@duke.edu" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "numpy>=1.23",
+    "scipy>=1.9",
+]
+
+[project.optional-dependencies]
+full = [
+    "scikit-learn>=1.2",
+    "numba>=0.57",
+    "pynndescent>=0.5",
+]
+viz = ["matplotlib>=3.5", "seaborn>=0.12"]
+dev = [
+    "pytest>=7",
+    "pytest-cov",
+    "ruff",
+    "pre-commit",
+]
+docs = [
+    "mkdocs-material",
+    "mkdocstrings[python]",
+    "mkdocs-awesome-pages-plugin",
+]
+
+[project.urls]
+Homepage = "https://t-sne-pi.cs.duke.edu"
+Documentation = "https://qqgjyx.com/pysgtsnepi/"
+Repository = "https://github.com/qqgjyx/sgtsnepi"
+Issues = "https://github.com/qqgjyx/sgtsnepi/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# --- Ruff ---
+[tool.ruff]
+src = ["src"]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "B",   # flake8-bugbear
+    "I",   # isort
+    "UP",  # pyupgrade
+    "RUF", # ruff-specific rules
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pysgtsnepi"]
+
+# --- Pytest ---
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers"]
+
+# --- Coverage ---
+[tool.coverage.run]
+source = ["pysgtsnepi"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
