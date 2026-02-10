@@ -5,4 +5,4 @@ hide:
 
 # `sgtsne_lambda_equalization`
 
-::: src.pysgtsnepi.utils.sgtsne_lambda_equalization
+::: pysgtsnepi.utils.sgtsne_lambda_equalization

@@ -64,8 +64,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          setup_commands:
-            - "import sys; sys.path.insert(0, './src')"  # Use './src' to point to the correct path
+          paths: [src]
           options:
             docstring_style: numpy
   - offline
