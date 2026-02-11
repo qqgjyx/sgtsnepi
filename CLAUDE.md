@@ -33,19 +33,19 @@ uv run mkdocs serve              # Local docs preview
 
 **src layout** — all source lives under `src/pysgtsnepi/`.
 
-The implementation follows a pipeline: raw data → kNN graph → stochastic matrix → lambda equalization → embedding loop (attractive + repulsive forces) → low-dimensional coordinates.
+The implementation follows a pipeline: raw data → kNN graph (+ perplexity equalization) → column-stochastic matrix → lambda rescaling → symmetrize → embedding loop (attractive + repulsive forces) → low-dimensional coordinates.
 
-### Module map (planned, see DEV_PLAN.md for status)
+### Module map
 
 | Module | Purpose | Reference source |
 |--------|---------|-----------------|
-| `knn.py` | Build sparse kNN graph via PyNNDescent | `ref/SGtSNEpi.jl/src/knn.jl` |
+| `knn.py` | Build sparse kNN graph via PyNNDescent, optional perplexity equalization | `ref/SGtSNEpi.jl/src/knn.jl`, `util.jl` |
 | `attractive.py` | Sparse matrix–vector attractive gradient | `ref/SGtSNEpi.jl/src/attractive.jl` |
 | `repulsive.py` | FFT-accelerated repulsive forces (grid interpolation + convolution) | `ref/SGtSNEpi.jl/src/repulsive.jl` |
 | `embedding.py` | Optimizer loop (Adam/momentum SGD, early exaggeration) | `ref/SGtSNEpi.jl/src/sgtsnepi.jl` |
 | `api.py` | Functional API: `sgtsnepi(P, d=2, ...)` | — |
 | `estimator.py` | sklearn-compatible `SGtSNEpi` estimator | — |
-| `utils/sgtsne_lambda_equalization.py` | Lambda/perplexity equalization (complete) | `ref/SGtSNEpi.jl/src/lambda.jl` |
+| `utils/graph_rescaling.py` | Lambda-based graph rescaling | `ref/sgtsnepi/src/graph_rescaling.cpp` |
 
 ### Key dependencies
 
@@ -58,7 +58,7 @@ All four (numpy, scipy, numba, pynndescent, scikit-learn) are core dependencies,
 
 ## Conventions
 
-- **Python ≥ 3.10**, version `0.2.0`
+- **Python ≥ 3.10**, version `0.3.0`
 - **Ruff** for linting+formatting: line length 88, rules E/F/W/B/I/UP/RUF
 - **pre-commit** hooks: trailing whitespace, EOF fixer, YAML/TOML checks, large file guard (500KB), ruff
 - CI runs lint → test (matrix: ubuntu/macOS/Windows × Python 3.10/3.12) → docs deploy

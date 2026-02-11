@@ -6,7 +6,7 @@ import numpy as np
 from scipy.sparse import csc_matrix, diags, issparse
 
 from pysgtsnepi.embedding import sgtsne_embedding
-from pysgtsnepi.utils.sgtsne_lambda_equalization import sgtsne_lambda_equalization
+from pysgtsnepi.utils.graph_rescaling import lambda_rescaling
 
 
 def sgtsnepi(
@@ -91,16 +91,9 @@ def sgtsnepi(
     D_inv = 1.0 / col_sums_safe
     P = P @ diags(D_inv)
 
-    # Lambda rescaling
+    # Lambda rescaling (C++ lambdaRescaling: -log, bisection, exp, col-normalize)
     if lambda_ != 1.0:
-        # Convert to distances: D = -log(P)
-        D = P.copy()
-        D.data = -np.log(np.maximum(D.data, np.finfo(float).tiny))
-        D = sgtsne_lambda_equalization(D, lambda_)
-        # Re-normalize columns to sum to 1
-        cs = np.asarray(D.sum(axis=0)).ravel()
-        cs_safe = np.where(cs > 0, cs, 1.0)
-        P = D @ diags(1.0 / cs_safe)
+        P = lambda_rescaling(P, lambda_)
 
     # Symmetrize: P = P + P.T (matches C++ sparsematrix.cpp)
     P = P + P.T

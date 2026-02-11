@@ -6,4 +6,4 @@ nav:
   - attractive: attractive.md
   - repulsive: repulsive.md
   - embedding: embedding.md
-  - sgtsne_lambda_equalization: lambda-eq.md
+  - graph_rescaling: lambda-eq.md

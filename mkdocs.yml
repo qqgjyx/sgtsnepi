@@ -49,6 +49,9 @@ theme:
     edit: material/pencil
     view: material/eye
 plugins:
+  - mkdocs-jupyter:
+      execute: false
+      include_source: true
   - mkdocstrings:
       handlers:
         python:

@@ -3,6 +3,6 @@ hide:
   - toc
 ---
 
-# `sgtsne_lambda_equalization`
+# `graph_rescaling`
 
-::: pysgtsnepi.utils.sgtsne_lambda_equalization
+::: pysgtsnepi.utils.graph_rescaling

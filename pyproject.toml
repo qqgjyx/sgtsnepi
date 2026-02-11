@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pysgtsnepi"
-version = "0.2.0"
+version = "0.3.0"
 description = "Pure Python implementation of SG-t-SNE-Π: Swift Neighbor Embedding of Sparse Stochastic Graphs"
 readme = "README.md"
 license = "MIT"
@@ -39,11 +39,21 @@ dev = [
     "pytest-cov",
     "ruff",
     "pre-commit",
+    "nbformat>=5.10",
+    "nbclient>=0.10",
+    "ipykernel>=6.29",
+    "matplotlib>=3.5",
+    "scikit-image>=0.20",
 ]
 docs = [
     "mkdocs-material",
     "mkdocstrings[python]",
     "mkdocs-awesome-pages-plugin",
+    "mkdocs-jupyter",
+]
+examples = [
+    "matplotlib>=3.5",
+    "scikit-image>=0.20",
 ]
 
 [project.urls]
@@ -87,3 +97,4 @@ source = ["pysgtsnepi"]
 [tool.coverage.report]
 show_missing = true
 skip_empty = true
+

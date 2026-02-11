@@ -20,4 +20,4 @@
 
 | Module | Description |
 |--------|-------------|
-| [`sgtsne_lambda_equalization`](lambda-eq.md) | Lambda / perplexity equalization |
+| [`graph_rescaling`](lambda-eq.md) | Lambda-based graph rescaling |

@@ -14,6 +14,7 @@ def test_best_grid_size():
     assert _best_grid_size(14) >= 14
     # Result + 2 should be in the GRID_SIZES list
     from pysgtsnepi.repulsive import _GRID_SIZES
+
     result = _best_grid_size(20)
     assert (result + 2) in _GRID_SIZES
 

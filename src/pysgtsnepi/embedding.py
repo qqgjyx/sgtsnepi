@@ -82,9 +82,7 @@ def sgtsne_embedding(
         dY = current_alpha * Fattr - Frep
 
         # Gain adaptation
-        gains = np.where(
-            np.sign(dY) != np.sign(uY), gains + 0.2, gains * 0.8
-        )
+        gains = np.where(np.sign(dY) != np.sign(uY), gains + 0.2, gains * 0.8)
         np.clip(gains, 0.01, None, out=gains)
 
         # Velocity update

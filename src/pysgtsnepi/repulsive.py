@@ -14,16 +14,143 @@ from scipy.fft import fftn, ifftn
 
 # FFT-friendly grid sizes (from qq.cpp)
 _GRID_SIZES = [
-    8, 9, 10, 11, 12, 13, 14, 15, 16, 20, 25, 26, 28, 32, 33, 35,
-    36, 39, 40, 42, 44, 45, 48, 49, 50, 52, 54, 55, 56, 60, 63, 64,
-    65, 66, 70, 72, 75, 77, 78, 80, 84, 88, 90, 91, 96, 98, 99, 100,
-    104, 105, 108, 110, 112, 117, 120, 125, 126, 130, 132, 135, 140,
-    144, 147, 150, 154, 156, 160, 165, 168, 175, 176, 180, 182, 189,
-    192, 195, 196, 198, 200, 208, 210, 216, 220, 224, 225, 231, 234,
-    240, 245, 250, 252, 260, 264, 270, 273, 275, 280, 288, 294, 297,
-    300, 308, 312, 315, 320, 325, 330, 336, 343, 350, 351, 352, 360,
-    364, 375, 378, 385, 390, 392, 396, 400, 416, 420, 432, 440, 441,
-    448, 450, 455, 462, 468, 480, 490, 495, 500, 504, 512,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    20,
+    25,
+    26,
+    28,
+    32,
+    33,
+    35,
+    36,
+    39,
+    40,
+    42,
+    44,
+    45,
+    48,
+    49,
+    50,
+    52,
+    54,
+    55,
+    56,
+    60,
+    63,
+    64,
+    65,
+    66,
+    70,
+    72,
+    75,
+    77,
+    78,
+    80,
+    84,
+    88,
+    90,
+    91,
+    96,
+    98,
+    99,
+    100,
+    104,
+    105,
+    108,
+    110,
+    112,
+    117,
+    120,
+    125,
+    126,
+    130,
+    132,
+    135,
+    140,
+    144,
+    147,
+    150,
+    154,
+    156,
+    160,
+    165,
+    168,
+    175,
+    176,
+    180,
+    182,
+    189,
+    192,
+    195,
+    196,
+    198,
+    200,
+    208,
+    210,
+    216,
+    220,
+    224,
+    225,
+    231,
+    234,
+    240,
+    245,
+    250,
+    252,
+    260,
+    264,
+    270,
+    273,
+    275,
+    280,
+    288,
+    294,
+    297,
+    300,
+    308,
+    312,
+    315,
+    320,
+    325,
+    330,
+    336,
+    343,
+    350,
+    351,
+    352,
+    360,
+    364,
+    375,
+    378,
+    385,
+    390,
+    392,
+    396,
+    400,
+    416,
+    420,
+    432,
+    440,
+    441,
+    448,
+    450,
+    455,
+    462,
+    468,
+    480,
+    490,
+    495,
+    500,
+    504,
+    512,
 ]
 
 
@@ -38,6 +165,7 @@ def _best_grid_size(n_grid: int) -> int:
 
 # ---- Lagrange interpolation kernels (degree 3) ----
 
+
 @numba.njit(cache=True)
 def _lagrange_inner(d):
     return 0.5 * d * d * d - d * d - 0.5 * d + 1.0
@@ -51,16 +179,21 @@ def _lagrange_outer(d):
 
 # ---- Scatter to Grid (S2G) ----
 
+
 @numba.njit(cache=True)
 def _s2g_1d(V, y, q, ng, n, n_vec):
     """Scatter values from points to 1D grid."""
     for i in range(n):
         f1 = math.floor(y[i, 0])
         d = y[i, 0] - f1
-        w1 = np.array([
-            _lagrange_outer(1 + d), _lagrange_inner(d),
-            _lagrange_inner(1 - d), _lagrange_outer(2 - d),
-        ])
+        w1 = np.array(
+            [
+                _lagrange_outer(1 + d),
+                _lagrange_inner(d),
+                _lagrange_inner(1 - d),
+                _lagrange_outer(2 - d),
+            ]
+        )
         for j in range(n_vec):
             qv = q[i, j]
             for idx1 in range(4):
@@ -73,17 +206,25 @@ def _s2g_2d(V, y, q, ng, n, n_vec):
     for i in range(n):
         f1 = math.floor(y[i, 0])
         d = y[i, 0] - f1
-        w1 = np.array([
-            _lagrange_outer(1 + d), _lagrange_inner(d),
-            _lagrange_inner(1 - d), _lagrange_outer(2 - d),
-        ])
+        w1 = np.array(
+            [
+                _lagrange_outer(1 + d),
+                _lagrange_inner(d),
+                _lagrange_inner(1 - d),
+                _lagrange_outer(2 - d),
+            ]
+        )
 
         f2 = math.floor(y[i, 1])
         d = y[i, 1] - f2
-        w2 = np.array([
-            _lagrange_outer(1 + d), _lagrange_inner(d),
-            _lagrange_inner(1 - d), _lagrange_outer(2 - d),
-        ])
+        w2 = np.array(
+            [
+                _lagrange_outer(1 + d),
+                _lagrange_inner(d),
+                _lagrange_inner(1 - d),
+                _lagrange_outer(2 - d),
+            ]
+        )
 
         for j in range(n_vec):
             qv = q[i, j]
@@ -99,24 +240,36 @@ def _s2g_3d(V, y, q, ng, n, n_vec):
     for i in range(n):
         f1 = math.floor(y[i, 0])
         d = y[i, 0] - f1
-        w1 = np.array([
-            _lagrange_outer(1 + d), _lagrange_inner(d),
-            _lagrange_inner(1 - d), _lagrange_outer(2 - d),
-        ])
+        w1 = np.array(
+            [
+                _lagrange_outer(1 + d),
+                _lagrange_inner(d),
+                _lagrange_inner(1 - d),
+                _lagrange_outer(2 - d),
+            ]
+        )
 
         f2 = math.floor(y[i, 1])
         d = y[i, 1] - f2
-        w2 = np.array([
-            _lagrange_outer(1 + d), _lagrange_inner(d),
-            _lagrange_inner(1 - d), _lagrange_outer(2 - d),
-        ])
+        w2 = np.array(
+            [
+                _lagrange_outer(1 + d),
+                _lagrange_inner(d),
+                _lagrange_inner(1 - d),
+                _lagrange_outer(2 - d),
+            ]
+        )
 
         f3 = math.floor(y[i, 2])
         d = y[i, 2] - f3
-        w3 = np.array([
-            _lagrange_outer(1 + d), _lagrange_inner(d),
-            _lagrange_inner(1 - d), _lagrange_outer(2 - d),
-        ])
+        w3 = np.array(
+            [
+                _lagrange_outer(1 + d),
+                _lagrange_inner(d),
+                _lagrange_inner(1 - d),
+                _lagrange_outer(2 - d),
+            ]
+        )
 
         for j in range(n_vec):
             qv = q[i, j]
@@ -124,12 +277,11 @@ def _s2g_3d(V, y, q, ng, n, n_vec):
                 for idx2 in range(4):
                     qv23 = qv * w2[idx2] * w3[idx3]
                     for idx1 in range(4):
-                        V[f1 + idx1, f2 + idx2, f3 + idx3, j] += (
-                            qv23 * w1[idx1]
-                        )
+                        V[f1 + idx1, f2 + idx2, f3 + idx3, j] += qv23 * w1[idx1]
 
 
 # ---- Grid to Scatter (G2S) ----
+
 
 @numba.njit(cache=True)
 def _g2s_1d(Phi, V, y, ng, n, n_vec):
@@ -137,10 +289,14 @@ def _g2s_1d(Phi, V, y, ng, n, n_vec):
     for i in range(n):
         f1 = math.floor(y[i, 0])
         d = y[i, 0] - f1
-        w1 = np.array([
-            _lagrange_outer(1 + d), _lagrange_inner(d),
-            _lagrange_inner(1 - d), _lagrange_outer(2 - d),
-        ])
+        w1 = np.array(
+            [
+                _lagrange_outer(1 + d),
+                _lagrange_inner(d),
+                _lagrange_inner(1 - d),
+                _lagrange_outer(2 - d),
+            ]
+        )
         for j in range(n_vec):
             accum = 0.0
             for idx1 in range(4):
@@ -154,17 +310,25 @@ def _g2s_2d(Phi, V, y, ng, n, n_vec):
     for i in range(n):
         f1 = math.floor(y[i, 0])
         d = y[i, 0] - f1
-        w1 = np.array([
-            _lagrange_outer(1 + d), _lagrange_inner(d),
-            _lagrange_inner(1 - d), _lagrange_outer(2 - d),
-        ])
+        w1 = np.array(
+            [
+                _lagrange_outer(1 + d),
+                _lagrange_inner(d),
+                _lagrange_inner(1 - d),
+                _lagrange_outer(2 - d),
+            ]
+        )
 
         f2 = math.floor(y[i, 1])
         d = y[i, 1] - f2
-        w2 = np.array([
-            _lagrange_outer(1 + d), _lagrange_inner(d),
-            _lagrange_inner(1 - d), _lagrange_outer(2 - d),
-        ])
+        w2 = np.array(
+            [
+                _lagrange_outer(1 + d),
+                _lagrange_inner(d),
+                _lagrange_inner(1 - d),
+                _lagrange_outer(2 - d),
+            ]
+        )
 
         for j in range(n_vec):
             accum = 0.0
@@ -180,24 +344,36 @@ def _g2s_3d(Phi, V, y, ng, n, n_vec):
     for i in range(n):
         f1 = math.floor(y[i, 0])
         d = y[i, 0] - f1
-        w1 = np.array([
-            _lagrange_outer(1 + d), _lagrange_inner(d),
-            _lagrange_inner(1 - d), _lagrange_outer(2 - d),
-        ])
+        w1 = np.array(
+            [
+                _lagrange_outer(1 + d),
+                _lagrange_inner(d),
+                _lagrange_inner(1 - d),
+                _lagrange_outer(2 - d),
+            ]
+        )
 
         f2 = math.floor(y[i, 1])
         d = y[i, 1] - f2
-        w2 = np.array([
-            _lagrange_outer(1 + d), _lagrange_inner(d),
-            _lagrange_inner(1 - d), _lagrange_outer(2 - d),
-        ])
+        w2 = np.array(
+            [
+                _lagrange_outer(1 + d),
+                _lagrange_inner(d),
+                _lagrange_inner(1 - d),
+                _lagrange_outer(2 - d),
+            ]
+        )
 
         f3 = math.floor(y[i, 2])
         d = y[i, 2] - f3
-        w3 = np.array([
-            _lagrange_outer(1 + d), _lagrange_inner(d),
-            _lagrange_inner(1 - d), _lagrange_outer(2 - d),
-        ])
+        w3 = np.array(
+            [
+                _lagrange_outer(1 + d),
+                _lagrange_inner(d),
+                _lagrange_inner(1 - d),
+                _lagrange_outer(2 - d),
+            ]
+        )
 
         for j in range(n_vec):
             accum = 0.0
@@ -205,15 +381,12 @@ def _g2s_3d(Phi, V, y, ng, n, n_vec):
                 for idx2 in range(4):
                     w23 = w2[idx2] * w3[idx3]
                     for idx1 in range(4):
-                        accum += (
-                            V[f1 + idx1, f2 + idx2, f3 + idx3, j]
-                            * w23
-                            * w1[idx1]
-                        )
+                        accum += V[f1 + idx1, f2 + idx2, f3 + idx3, j] * w23 * w1[idx1]
             Phi[i, j] = accum
 
 
 # ---- FFT convolution (even/odd decomposition) ----
+
 
 def _conv1d_nopad(PhiGrid, VGrid, h, ng, n_vec):
     """Non-periodic 1D convolution via even/odd decomposition (2 passes)."""
@@ -229,7 +402,7 @@ def _conv1d_nopad(PhiGrid, VGrid, h, ng, n_vec):
 
     # ---- EVEN pass ----
     K = kvals.astype(complex).copy()
-    K[n1 - 1:0:-1] += kvals[1:]
+    K[n1 - 1 : 0 : -1] += kvals[1:]
 
     X = VGrid.copy().astype(complex)  # shape (n1, n_vec)
 
@@ -240,7 +413,7 @@ def _conv1d_nopad(PhiGrid, VGrid, h, ng, n_vec):
 
     # ---- ODD pass ----
     K = kvals.astype(complex).copy()
-    K[n1 - 1:0:-1] -= kvals[1:]
+    K[n1 - 1 : 0 : -1] -= kvals[1:]
     K *= w
 
     X = VGrid.astype(complex) * w[:, np.newaxis]
@@ -273,19 +446,19 @@ def _conv2d_nopad(PhiGrid, VGrid, h, ng, n_vec):
     # Each pass: build kernel with symmetry, apply twiddle, FFT convolve
     # Symmetry signs for (dim1, dim2): e=+1, o=-1
     passes = [
-        (1, 1, None, None),       # ee
-        (-1, 1, w, None),         # oe: twiddle on dim 0
-        (1, -1, None, w),         # eo: twiddle on dim 1
-        (-1, -1, w, w),           # oo: twiddle on both
+        (1, 1, None, None),  # ee
+        (-1, 1, w, None),  # oe: twiddle on dim 0
+        (1, -1, None, w),  # eo: twiddle on dim 1
+        (-1, -1, w, w),  # oo: twiddle on both
     ]
 
     accum = np.zeros((n1, n2, n_vec), dtype=np.float64)
 
     for s1, s2, tw1, tw2 in passes:
         K = kvals.astype(complex).copy()
-        K[n1 - 1:0:-1, :] += s1 * kvals[1:, :]
-        K[:, n2 - 1:0:-1] += s2 * kvals[:, 1:]
-        K[n1 - 1:0:-1, n2 - 1:0:-1] += s1 * s2 * kvals[1:, 1:]
+        K[n1 - 1 : 0 : -1, :] += s1 * kvals[1:, :]
+        K[:, n2 - 1 : 0 : -1] += s2 * kvals[:, 1:]
+        K[n1 - 1 : 0 : -1, n2 - 1 : 0 : -1] += s1 * s2 * kvals[1:, 1:]
 
         # Apply twiddle to kernel
         if tw1 is not None:
@@ -336,13 +509,13 @@ def _conv3d_nopad(PhiGrid, VGrid, h, ng, n_vec):
         for s2 in (1, -1):
             for s3 in (1, -1):
                 K = kvals.astype(complex).copy()
-                K[n1 - 1:0:-1, :, :] += s1 * kvals[1:, :, :]
-                K[:, n2 - 1:0:-1, :] += s2 * kvals[:, 1:, :]
-                K[n1 - 1:0:-1, n2 - 1:0:-1, :] += s1 * s2 * kvals[1:, 1:, :]
-                K[:, :, n3 - 1:0:-1] += s3 * kvals[:, :, 1:]
-                K[n1 - 1:0:-1, :, n3 - 1:0:-1] += s1 * s3 * kvals[1:, :, 1:]
-                K[:, n2 - 1:0:-1, n3 - 1:0:-1] += s2 * s3 * kvals[:, 1:, 1:]
-                K[n1 - 1:0:-1, n2 - 1:0:-1, n3 - 1:0:-1] += (
+                K[n1 - 1 : 0 : -1, :, :] += s1 * kvals[1:, :, :]
+                K[:, n2 - 1 : 0 : -1, :] += s2 * kvals[:, 1:, :]
+                K[n1 - 1 : 0 : -1, n2 - 1 : 0 : -1, :] += s1 * s2 * kvals[1:, 1:, :]
+                K[:, :, n3 - 1 : 0 : -1] += s3 * kvals[:, :, 1:]
+                K[n1 - 1 : 0 : -1, :, n3 - 1 : 0 : -1] += s1 * s3 * kvals[1:, :, 1:]
+                K[:, n2 - 1 : 0 : -1, n3 - 1 : 0 : -1] += s2 * s3 * kvals[:, 1:, 1:]
+                K[n1 - 1 : 0 : -1, n2 - 1 : 0 : -1, n3 - 1 : 0 : -1] += (
                     s1 * s2 * s3 * kvals[1:, 1:, 1:]
                 )
 
@@ -386,6 +559,7 @@ def _conv3d_nopad(PhiGrid, VGrid, h, ng, n_vec):
 
 # ---- Normalization and force extraction ----
 
+
 @numba.njit(cache=True)
 def _zeta_and_force(Y, Phi, n, d):
     """Compute normalization Z and repulsive forces.
@@ -417,9 +591,7 @@ _CONV = {1: _conv1d_nopad, 2: _conv2d_nopad, 3: _conv3d_nopad}
 _G2S = {1: _g2s_1d, 2: _g2s_2d, 3: _g2s_3d}
 
 
-def compute_repulsive_forces(
-    Y: np.ndarray, h: float
-) -> tuple[np.ndarray, float]:
+def compute_repulsive_forces(Y: np.ndarray, h: float) -> tuple[np.ndarray, float]:
     """Compute FFT-accelerated repulsive forces.
 
     Parameters
@@ -488,8 +660,6 @@ def compute_repulsive_forces(
     _G2S[d](PhiScat, PhiGrid, Y_grid_2d, ng, n, n_vec)
 
     # Compute Z and repulsive forces using original-scale coords
-    Frep, zeta = _zeta_and_force(
-        np.ascontiguousarray(Y_shifted), PhiScat, n, d
-    )
+    Frep, zeta = _zeta_and_force(np.ascontiguousarray(Y_shifted), PhiScat, n, d)
 
     return Frep, zeta

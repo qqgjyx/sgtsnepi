@@ -47,3 +47,20 @@ def test_csc_format():
     graph = build_knn_graph(X, n_neighbors=5, random_state=2)
 
     assert graph.format == "csc"
+
+
+def test_perplexity_equalization():
+    """With perplexity set, output is column-stochastic with values in (0, 1)."""
+    rng = np.random.default_rng(42)
+    X = rng.standard_normal((50, 5))
+    graph = build_knn_graph(X, n_neighbors=10, random_state=42, perplexity=10.0)
+
+    assert issparse(graph)
+    assert graph.format == "csc"
+    # All values should be in (0, 1)
+    assert np.all(graph.data > 0)
+    assert np.all(graph.data <= 1)
+    # Each column should sum to ~1 (column-stochastic)
+    col_sums = np.asarray(graph.sum(axis=0)).ravel()
+    nonzero_cols = col_sums > 0
+    np.testing.assert_allclose(col_sums[nonzero_cols], 1.0, atol=1e-10)

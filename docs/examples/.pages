@@ -1,2 +1,4 @@
 nav:
-  - sgtsne_lambda_equalization: lambda_eq.md
+  - Quick Start (Digits): 01_digits_quickstart.ipynb
+  - MNIST Embedding: 02_mnist_embedding.ipynb
+  - Lambda Equalization: lambda_eq.md

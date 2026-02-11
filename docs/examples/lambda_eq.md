@@ -9,7 +9,7 @@ from typing import Literal
 
 from scipy.optimize import root_scalar
 
-from pysgtsnepi.utils import sgtsne_lambda_equalization
+from pysgtsnepi.utils import lambda_rescaling
 ```
 
 
@@ -18,7 +18,7 @@ import scipy
 
 D = scipy.io.loadmat(".cluster_only/kNN/SalinasA_A_11.mat")["D"]
 
-P = sgtsne_lambda_equalization(D, 10)
+P = lambda_rescaling(D, 10)
 ```
 
     ✅ All 7138 elements converged numerically, avg(#iter) = 16.0

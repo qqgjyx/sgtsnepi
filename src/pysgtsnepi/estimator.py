@@ -99,6 +99,7 @@ class SGtSNEpi(BaseEstimator, TransformerMixin):
                 n_neighbors=self.n_neighbors,
                 metric=self.metric,
                 random_state=self.random_state,
+                perplexity=self.lambda_,
             )
 
         Y = sgtsnepi(
