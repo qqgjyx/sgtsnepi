@@ -1,9 +1,13 @@
+import logging
+import math
 import warnings
 from typing import Literal
 
 import numpy as np
 from scipy.optimize import root_scalar
 from scipy.sparse import csc_matrix
+
+logger = logging.getLogger(__name__)
 
 
 def _colsum(D, j, sigma=1.0):
@@ -32,7 +36,7 @@ def _make_objective(D, j, lambda_):
 def sgtsne_lambda_equalization(
     D: csc_matrix,
     lambda_: float,
-    max_iter: int = 50,
+    max_iter: int = 100,
     tol_binary: float = 1e-5,
     algorithm: Literal[
         "custom_bisection",
@@ -59,7 +63,7 @@ def sgtsne_lambda_equalization(
     lambda_ : float
         The equalization parameter
     max_iter : int, optional
-        Maximum number of iterations for binary search, by default 50
+        Maximum number of iterations for binary search, by default 100
     tol_binary : float, optional
         Tolerance for binary search convergence, by default 1e-5
     algorithm : str, optional
@@ -97,7 +101,7 @@ def sgtsne_lambda_equalization(
     if algorithm == "custom_bisection":
         for j in range(n):
             fval = i_tval[j]
-            lb, ub = -1000.0, 1000.0
+            lb, ub = -1000.0, float("inf")
 
             iter_count = 0
 
@@ -106,16 +110,13 @@ def sgtsne_lambda_equalization(
 
                 if fval > 0:
                     lb = sigma_sq[j]
-                    if ub >= 1000.0:
+                    if math.isinf(ub):
                         sigma_sq[j] = 2 * lb
                     else:
                         sigma_sq[j] = 0.5 * (lb + ub)
                 else:
                     ub = sigma_sq[j]
-                    if lb <= -1000.0:
-                        sigma_sq[j] = 0.5 * ub
-                    else:
-                        sigma_sq[j] = 0.5 * (lb + ub)
+                    sigma_sq[j] = 0.5 * (lb + ub)
 
                 sum_j = _colsum(D, j, sigma_sq[j])
                 fval = sum_j - lambda_
@@ -167,7 +168,9 @@ def sgtsne_lambda_equalization(
     nc_idx = np.sum(np.abs(i_diff) > tol_binary)
 
     if nc_idx == 0:
-        print(f"All {n} elements converged numerically, avg(#iter) = {avg_iter}")
+        logger.info(
+            "All %d elements converged numerically, avg(#iter) = %d", n, avg_iter
+        )
     else:
         warnings.warn(
             f"There are {nc_idx} non-convergent elements out of {n}", stacklevel=2

@@ -62,13 +62,13 @@ Y = sgtsnepi(P, d=3, lambda_=10)
 ## Roadmap
 
 - [x] Lambda equalization
-- [ ] kNN graph construction (via PyNNDescent)
-- [ ] Core SG-t-SNE-Pi embedding (attractive + repulsive forces)
-- [ ] FFT-accelerated repulsive forces
-- [ ] Numba JIT for interpolation and gradient kernels
-- [ ] 1D / 3D embedding support
-- [ ] `SGtSNEpi` sklearn estimator class
-- [ ] `sgtsnepi()` functional API
+- [x] kNN graph construction (via PyNNDescent)
+- [x] Core SG-t-SNE-Pi embedding (attractive + repulsive forces)
+- [x] FFT-accelerated repulsive forces
+- [x] Numba JIT for interpolation and gradient kernels
+- [x] 1D / 3D embedding support
+- [x] `SGtSNEpi` sklearn estimator class
+- [x] `sgtsnepi()` functional API
 
 ## Citation
 

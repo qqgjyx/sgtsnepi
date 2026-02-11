@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "pysgtsnepi"
@@ -27,14 +27,12 @@ classifiers = [
 dependencies = [
     "numpy>=1.23",
     "scipy>=1.9",
+    "scikit-learn>=1.2",
+    "numba>=0.61",
+    "pynndescent>=0.5",
 ]
 
 [project.optional-dependencies]
-full = [
-    "scikit-learn>=1.2",
-    "numba>=0.57",
-    "pynndescent>=0.5",
-]
 viz = ["matplotlib>=3.5", "seaborn>=0.12"]
 dev = [
     "pytest>=7",
@@ -54,8 +52,8 @@ Documentation = "https://qqgjyx.com/pysgtsnepi/"
 Repository = "https://github.com/qqgjyx/sgtsnepi"
 Issues = "https://github.com/qqgjyx/sgtsnepi/issues"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.hatch.build.targets.wheel]
+packages = ["src/pysgtsnepi"]
 
 # --- Ruff ---
 [tool.ruff]

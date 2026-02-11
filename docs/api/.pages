@@ -1,3 +1,9 @@
 nav:
   - index.md
+  - sgtsnepi: sgtsnepi.md
+  - estimator: estimator.md
+  - knn: knn.md
+  - attractive: attractive.md
+  - repulsive: repulsive.md
+  - embedding: embedding.md
   - sgtsne_lambda_equalization: lambda-eq.md
