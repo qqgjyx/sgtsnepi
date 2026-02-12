@@ -42,7 +42,8 @@ def sgtsne_embedding(
     h : float
         Grid side length for FFT.
     Y0 : ndarray or None
-        Initial embedding of shape (n, d). If None, random init.
+        Initial embedding of shape (n, d). If None, random init
+        with scale 0.01 (matching Julia tutorial convention).
     random_state : int or None
         Random seed for reproducibility.
 
@@ -58,7 +59,7 @@ def sgtsne_embedding(
     if Y0 is not None:
         Y = Y0.copy().astype(np.float64)
     else:
-        Y = rng.standard_normal((n, d)) * 1e-4
+        Y = rng.standard_normal((n, d)) * 0.01
 
     # Momentum parameters (same as C++ reference)
     momentum = 0.5

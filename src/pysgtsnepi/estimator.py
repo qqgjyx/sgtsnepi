@@ -35,6 +35,9 @@ class SGtSNEpi(BaseEstimator, TransformerMixin):
         Grid side length for FFT. 0 = auto.
     random_state : int or None
         Random seed.
+    unweighted_to_weighted : bool
+        If True (default) and the input graph is unweighted, compute
+        Jaccard-index local weights before embedding.
     """
 
     def __init__(
@@ -49,6 +52,7 @@ class SGtSNEpi(BaseEstimator, TransformerMixin):
         eta: float = 200.0,
         h: float = 0.0,
         random_state: int | None = None,
+        unweighted_to_weighted: bool = True,
     ):
         self.d = d
         self.lambda_ = lambda_
@@ -60,6 +64,7 @@ class SGtSNEpi(BaseEstimator, TransformerMixin):
         self.eta = eta
         self.h = h
         self.random_state = random_state
+        self.unweighted_to_weighted = unweighted_to_weighted
 
     def fit(self, X, y=None):
         """Compute the embedding.
@@ -112,6 +117,7 @@ class SGtSNEpi(BaseEstimator, TransformerMixin):
             eta=self.eta,
             h=self.h,
             random_state=self.random_state,
+            unweighted_to_weighted=self.unweighted_to_weighted,
         )
 
         self.embedding_ = Y

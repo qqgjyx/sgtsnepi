@@ -1,4 +1,4 @@
 nav:
   - Quick Start (Digits): 01_digits_quickstart.ipynb
   - MNIST Embedding: 02_mnist_embedding.ipynb
-  - Lambda Equalization: lambda_eq.md
+  - Graph Embedding: 03_graph_embedding.ipynb

@@ -7,6 +7,7 @@ from scipy.sparse import csc_matrix, diags, issparse
 
 from pysgtsnepi.embedding import sgtsne_embedding
 from pysgtsnepi.utils.graph_rescaling import lambda_rescaling
+from pysgtsnepi.utils.graph_weights import local_weights
 
 
 def sgtsnepi(
@@ -20,6 +21,7 @@ def sgtsnepi(
     h: float = 0.0,
     Y0: np.ndarray | None = None,
     random_state: int | None = None,
+    unweighted_to_weighted: bool = True,
 ) -> np.ndarray:
     """Embed sparse stochastic graph via SG-t-SNE-Pi.
 
@@ -40,11 +42,16 @@ def sgtsnepi(
     eta : float
         Learning rate.
     h : float
-        Grid side length for FFT. If <= 0, auto-selected.
+        Grid side length for FFT. If <= 0, defaults to 1.0
+        (matching Julia wrapper).
     Y0 : ndarray or None
         Initial embedding of shape (n, d).
     random_state : int or None
         Random seed.
+    unweighted_to_weighted : bool
+        If True (default) and all edge weights are 1.0, compute
+        Jaccard-index local weights before normalization. Matches
+        Julia ``flag_unweighted_to_weighted``.
 
     Returns
     -------
@@ -65,6 +72,10 @@ def sgtsnepi(
     # Remove self-loops
     P.setdiag(0)
     P.eliminate_zeros()
+
+    # Convert unweighted to weighted (Jaccard index), matching Julia default
+    if unweighted_to_weighted and np.all(P.data == 1.0):
+        P = local_weights(P)
 
     # Validate
     if P.data.min() < 0:
@@ -107,7 +118,7 @@ def sgtsnepi(
 
     # Auto-select h
     if h <= 0:
-        h = {1: 0.5, 2: 0.7, 3: 1.2}[d]
+        h = 1.0
 
     # Run embedding
     Y = sgtsne_embedding(

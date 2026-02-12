@@ -2,7 +2,7 @@
 
 > Living doc. Update as work progresses.
 
-## Status: Phase 1+2+3 complete, v0.3.0
+## Status: Phase 1+2+3+3b complete, v0.3.0
 
 ### What's Done
 
@@ -28,6 +28,12 @@
 | Roadmaps updated (README, docs/index.md) | Done |
 | Embedding quality fix (perplexity eq + lambda rescaling + HOG fix) | Done |
 | Examples: digits quickstart + MNIST embedding notebooks | Done |
+| `vis.py` — `show_embedding` visualization helper | Done |
+| `graph_weights.py` — Jaccard-index local weights for unweighted graphs | Done |
+| `03_graph_embedding.ipynb` — optdigits_10NN graph embedding tutorial | Done |
+| Julia-aligned defaults (h=1.0, Y0 scale 0.01, vis params) | Done |
+| Docs nav updated (`docs/examples/.pages`) | Done |
+| Tests (29 tests passing, 0 warnings) | Done |
 
 ### What's Next
 
