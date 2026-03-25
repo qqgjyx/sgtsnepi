@@ -90,12 +90,17 @@ If you use this package in your research, please cite:
 }
 ```
 
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
 ## Links
 
 - [Algorithm website](https://t-sne-pi.cs.duke.edu)
 - [C++ implementation](https://github.com/fcdimitr/sgtsnepi)
 - [Julia implementation](https://github.com/fcdimitr/SGtSNEpi.jl)
 - [Documentation](https://qqgjyx.com/pysgtsnepi/)
+- [PyPI](https://pypi.org/project/pysgtsnepi/)
 
 ## License
 
