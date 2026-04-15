@@ -23,21 +23,22 @@ def show_embedding(
     figsize: tuple[int, int] = (10, 10),
     dpi: int = 150,
 ):
-    """Visualize a 2D embedding with optional graph edges.
+    """Visualize a 2D or 3D embedding with optional graph edges.
 
     Matches Julia ``SGtSNEpi.jl`` ``show_embedding``.
 
     Parameters
     ----------
-    Y : ndarray of shape (n, 2)
-        2D embedding coordinates.
+    Y : ndarray of shape (n, 2) or (n, 3)
+        2D or 3D embedding coordinates.
     L : ndarray of shape (n,), optional
         Integer class labels for coloring. If *None*, all points get the
         same color.
     A : sparse matrix, optional
         Adjacency matrix. If provided, edges are drawn on the plot.
     ax : matplotlib Axes, optional
-        Axes to draw on. If *None*, a new figure is created.
+        Axes to draw on. If *None*, a new figure is created. For 3D embeddings
+        a 3D projection Axes is created automatically.
     cmap : str
         Matplotlib colormap name.
     edge_alpha : float
@@ -55,13 +56,14 @@ def show_embedding(
 
     Returns
     -------
-    fig, ax : matplotlib Figure and Axes
+    fig, ax : matplotlib Figure and Axes (3D Axes for 3D embeddings)
     """
     import matplotlib.pyplot as plt
     from matplotlib.collections import LineCollection
+    from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
-    if Y.shape[1] != 2:
-        raise ValueError("show_embedding only supports 2D embeddings")
+    if Y.shape[1] not in (2, 3):
+        raise ValueError("show_embedding only supports 2D or 3D embeddings")
 
     n = Y.shape[0]
     if L is None:
@@ -76,8 +78,14 @@ def show_embedding(
     # Get colormap colors
     cm = plt.get_cmap(cmap, max(n_classes, 10))
 
+    is_3d = Y.shape[1] == 3
+
     if ax is None:
-        fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+        if is_3d:
+            fig = plt.figure(figsize=figsize, dpi=dpi)
+            ax = fig.add_subplot(111, projection="3d")
+        else:
+            fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
     else:
         fig = ax.get_figure()
 
@@ -93,57 +101,66 @@ def show_embedding(
         for k in labels_unique:
             mask = (L_rows == k) & (L_cols == k)
             if mask.any():
-                segs = np.stack([Y[rows[mask]], Y[cols[mask]]], axis=1)  # (m, 2, 2)
+                segs = np.stack(
+                    [Y[rows[mask]], Y[cols[mask]]], axis=1
+                )  # (m, 2, 2) or (m, 2, 3)
                 color = [*cm(k)[:3], edge_alpha]
-                lc = LineCollection(segs, colors=[color], linewidths=lwd_in)
+                if is_3d:
+                    lc = Line3DCollection(segs, colors=[color], linewidths=lwd_in)
+                else:
+                    lc = LineCollection(segs, colors=[color], linewidths=lwd_in)
                 ax.add_collection(lc)
 
         # Inter-cluster edges (gray)
         mask_cross = L_rows != L_cols
         if mask_cross.any():
             segs = np.stack([Y[rows[mask_cross]], Y[cols[mask_cross]]], axis=1)
-            lc = LineCollection(
-                segs,
-                colors=[(0.67, 0.73, 0.73, edge_alpha)],
-                linewidths=lwd_out,
-            )
+            if is_3d:
+                lc = Line3DCollection(
+                    segs,
+                    colors=[(0.67, 0.73, 0.73, edge_alpha)],
+                    linewidths=lwd_out,
+                )
+            else:
+                lc = LineCollection(
+                    segs,
+                    colors=[(0.67, 0.73, 0.73, edge_alpha)],
+                    linewidths=lwd_out,
+                )
             ax.add_collection(lc)
 
     # --- Draw nodes ---
-    ax.scatter(
-        Y[:, 0],
-        Y[:, 1],
-        c=L,
-        cmap=cmap,
-        s=mrk_size,
-        zorder=2,
-        vmin=labels_unique.min(),
-        vmax=labels_unique.max(),
-    )
+    if is_3d:
+        sc = ax.scatter(
+            Y[:, 0],
+            Y[:, 1],
+            Y[:, 2],
+            c=L,
+            cmap=cmap,
+            s=mrk_size,
+            zorder=2,
+            vmin=labels_unique.min(),
+            vmax=labels_unique.max(),
+        )
+    else:
+        sc = ax.scatter(
+            Y[:, 0],
+            Y[:, 1],
+            c=L,
+            cmap=cmap,
+            s=mrk_size,
+            zorder=2,
+            vmin=labels_unique.min(),
+            vmax=labels_unique.max(),
+        )
 
-    ax.set_aspect("equal")
+    if not is_3d:
+        ax.set_aspect("equal")
     ax.autoscale_view()
 
-    # Legend (only if multiple classes)
+    # Colorbar on the right for both 2D and 3D
     if n_classes > 1:
-        handles = [
-            plt.Line2D(
-                [0],
-                [0],
-                marker="o",
-                color="w",
-                markerfacecolor=cm(k),
-                markersize=8,
-                label=str(k),
-            )
-            for k in labels_unique
-        ]
-        ax.legend(
-            handles=handles,
-            loc="upper center",
-            bbox_to_anchor=(0.5, 1.05),
-            ncol=min(n_classes, 10),
-            frameon=False,
-        )
+        cbar = fig.colorbar(sc, ax=ax, shrink=0.8, pad=0.02)
+        cbar.set_label("SOFA Score Cluster", fontsize=10)
 
     return fig, ax

@@ -30,6 +30,7 @@ dependencies = [
     "scikit-learn>=1.2",
     "numba>=0.61",
     "pynndescent>=0.5",
+    "matplotlib>=3.10.8",
 ]
 
 [project.optional-dependencies]
