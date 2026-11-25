@@ -6,7 +6,7 @@
 [![Python 3.10–3.13](https://img.shields.io/pypi/pyversions/pysgtsnepi)](https://pypi.org/project/pysgtsnepi/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/qqgjyx/sgtsnepi/actions/workflows/ci.yml/badge.svg)](https://github.com/qqgjyx/sgtsnepi/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-qqgjyx.com%2Fpysgtsnepi-blue)](https://qqgjyx.com/pysgtsnepi/)
+[![Docs](https://img.shields.io/badge/docs-juntangw.com%2Fsgtsnepi-blue)](https://juntangw.com/sgtsnepi/)
 
 > Embed sparse graphs into 2D/3D — pure Python, pip-installable, sklearn-compatible.
 
@@ -95,7 +95,7 @@ If you use this package in your research, please cite:
 - [Algorithm website](https://t-sne-pi.cs.duke.edu)
 - [C++ implementation](https://github.com/fcdimitr/sgtsnepi)
 - [Julia implementation](https://github.com/fcdimitr/SGtSNEpi.jl)
-- [Documentation](https://qqgjyx.com/pysgtsnepi/)
+- [Documentation](https://juntangw.com/sgtsnepi/)
 
 ## License
 

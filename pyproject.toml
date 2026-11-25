@@ -58,7 +58,7 @@ examples = [
 
 [project.urls]
 Homepage = "https://t-sne-pi.cs.duke.edu"
-Documentation = "https://qqgjyx.com/pysgtsnepi/"
+Documentation = "https://juntangw.com/sgtsnepi/"
 Repository = "https://github.com/qqgjyx/sgtsnepi"
 Issues = "https://github.com/qqgjyx/sgtsnepi/issues"
 
